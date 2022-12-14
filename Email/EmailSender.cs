@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Hosting;
 using System.Net;
 using System.Net.Mail;
 
@@ -17,51 +18,31 @@ namespace Hadddock.Email
         private readonly int smtpClientPort;
         private readonly string? smtpClientLogin;
         private readonly string? smtpClientPassword;
-        public EmailSender()
+        public EmailSender(string smtpClientServer, string smtpClientPort, string smtpClientLogin, string smtpClientPassword)
         {
-            string appsettingsPath = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location)
-                + Path.DirectorySeparatorChar + "appsettings.json";
+            if (smtpClientServer is null)
+                throw new ArgumentNullException(nameof(smtpClientServer));
+            if (smtpClientPort is null)
+                throw new ArgumentNullException(nameof(smtpClientPort));
+            if (smtpClientLogin is null)
+                throw new ArgumentNullException(nameof(smtpClientLogin));
+            if (smtpClientPassword is null)
+                throw new ArgumentNullException(nameof(smtpClientPassword));
 
-            if (!File.Exists(appsettingsPath))
+            this.smtpClientServer = smtpClientServer;
+            this.smtpClientPort = int.Parse(smtpClientPort);
+            this.smtpClientLogin = smtpClientLogin;
+            this.smtpClientPassword = smtpClientPassword;
+
+            try
             {
-                throw new FileNotFoundException("appsettings.json not found in execution directory");
+                MailAddress from = new(this.smtpClientLogin);
             }
 
-            IConfigurationBuilder builder = new ConfigurationBuilder().AddJsonFile("appsettings.json", false, true);
-            IConfigurationRoot root = builder.Build();
-            Console.WriteLine(root["smtpClientServer"]);
-
-            if (root["smtpClientServer"] is null)
-                throw new KeyNotFoundException("smtpClientServer key not found in appsettings.json");
-
-            if (root["smtpClientPort"] is null)
-                throw new KeyNotFoundException("smtpClientPort key not found in appsettings.json");
-
-            if (root["smtpClientLogin"] is null)
-                throw new KeyNotFoundException("smtpClientLogin key not found in appsettings.json");
-
-            this.smtpClientServer = root["smtpClientServer"];
-            this.smtpClientLogin = root["smtpClientLogin"];
-            this.smtpClientPassword = root["smtpClientPassword"];
-            string? smtpClientPortString = root["smtpClientPort"];
-
-            if (smtpClientPortString is not null)
+            catch (FormatException)
             {
-                this.smtpClientPort = int.Parse(smtpClientPortString);
+                throw new FormatException("Sender email address specified in smtpClientLogin has an invalid format");
             }
-
-            if (smtpClientLogin is not null)
-            {
-                try
-                {
-                    MailAddress from = new(this.smtpClientLogin);
-                }
-                catch (FormatException)
-                {
-                    throw new FormatException("Sender email address specified in smtpClientLogin has an invalid format");
-                }
-            }
-
         }
         public void SendEmail(string recipientAddress, string subject, string body)
         {
@@ -116,8 +97,6 @@ namespace Hadddock.Email
                         Console.WriteLine(MAX_ATTEMPTS + " retry attempts reached. Aborting.");
                 }
 
-                return;
-
                 static void WriteMessageStatus(MailMessage message, string status)
                 {
                     using StreamWriter w = File.AppendText("log.csv");
@@ -135,9 +114,7 @@ namespace Hadddock.Email
                         }));
                     }
                 }
-
             }
-
         }
     }
 }
