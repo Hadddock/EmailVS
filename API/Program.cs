@@ -46,7 +46,7 @@ app.UseCors();
 
 // Configure the HTTP request pipeline.
 
-//app.UseHttpsRedirection();
+app.UseHttpsRedirection();
 
 app.UseAuthorization();
 app.UseCors(MyAllowSpecificOrigins);
