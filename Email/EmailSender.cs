@@ -66,10 +66,10 @@ namespace Hadddock.Email
             MailMessage message = new(from, to) { Subject = subject, Body = body };
 
 
-            SmtpClient client = new(smtpClientServer, smtpClientPort)
+            SmtpClient client = new(this.smtpClientServer, this.smtpClientPort)
             {
                 EnableSsl = true,
-                Credentials = new NetworkCredential(smtpClientLogin, smtpClientPassword),
+                Credentials = new NetworkCredential(this.smtpClientLogin, this.smtpClientPassword),
             };
 
             SendMessageHelper(client, message);

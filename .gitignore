@@ -3,8 +3,12 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/main/VisualStudio.gitignore
 
-# Appsettings file
+# Appsettings files
 *appsettings.json
+*appsettings.Development.json
+
+# Log files
+*log.csv
 
 # User-specific files
 *.rsuser
