@@ -35,21 +35,22 @@ builder.Services.AddCors(options =>
             policy =>
             {
                 policy.WithOrigins("https://hadddock.github.io",
-                                    "http://hadddock.github.io")
+                                    "http://hadddock.github.io",
+                                    "http://localhost:3000")
                 .AllowAnyHeader()
                 .AllowAnyMethod();
+   
 
             });
     });
 var app = builder.Build();
-app.UseCors();
+
 
 // Configure the HTTP request pipeline.
-
-app.UseHttpsRedirection();
-
-app.UseAuthorization();
+//app.UseHttpsRedirection();
 app.UseCors(MyAllowSpecificOrigins);
+app.UseAuthorization();
+
 
 app.MapControllers();
 

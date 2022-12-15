@@ -10,7 +10,7 @@ namespace API.Controllers
     {
        
         private readonly ILogger<MessageController> _logger;
-        private IEmailService _emailService;
+        private readonly IEmailService _emailService;
 
         public MessageController(ILogger<MessageController> logger, IEmailService emailService)
         {
@@ -19,19 +19,25 @@ namespace API.Controllers
         }
 
         [HttpPost(Name = "SendEmail")]
-        public void Post(EmailDTO messageDto)
+        public void Post(EmailDTO emailDto)
         {
             if
             (
-                messageDto.messageBody is not null &&
-                messageDto.messageSubject is not null &&
-                messageDto.recipientEmail is not null
+                emailDto.messageBody is not null &&
+                emailDto.messageSubject is not null &&
+                emailDto.recipientEmail is not null
             )
 
             {
-                _emailService.SendEmail(messageDto.recipientEmail, messageDto.messageSubject, messageDto.messageBody);
+                try
+                {
+                    _emailService.SendEmail(emailDto.recipientEmail, emailDto.messageSubject, emailDto.messageBody);
+                }
+                catch(Exception e)
+                {
+                    Console.WriteLine(e);
+                }
             }
-
         }
     }
 }
